@@ -1,0 +1,11 @@
+{
+  "name": "pluszehn-lead-engine",
+  "version": "1.0.0",
+  "description": "Akquise- und Lead-Gen-Tool für pluszehn (Bühl): Betriebe finden, Bewertungen analysieren, personalisierte KI-Mails erzeugen, im CRM verwalten.",
+  "type": "module",
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "private": true
+}
