@@ -57,7 +57,10 @@ function bindEvents() {
   );
   $("#mailClose").addEventListener("click", () => $("#mailModal").classList.add("hidden"));
   $("#mailCopy").addEventListener("click", copyMail);
-  $("#mailMailto").addEventListener("click", openMailto);
+  $("#mailMailto").addEventListener("click", sendAction);
+  document.querySelectorAll("#typeSwitch .ts").forEach((b) =>
+    b.addEventListener("click", () => regenType(b.dataset.type))
+  );
 }
 
 function switchTab(tab) {
@@ -74,6 +77,7 @@ async function runSearch() {
   const brancheLabel = $("#branche").selectedOptions[0]?.text || branche;
   const city = $("#city").value.trim();
   const filter = $("#filter").value;
+  const source = $("#source").value;
   const btn = $("#searchBtn");
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Suche läuft …';
@@ -82,7 +86,7 @@ async function runSearch() {
     const data = await fetch("/api/search", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ branche: brancheLabel === "— Branche wählen —" ? "" : brancheLabel, city, filter }),
+      body: JSON.stringify({ branche: brancheLabel === "— Branche wählen —" ? "" : brancheLabel, city, filter, source }),
     }).then((r) => r.json());
     window.__lastTotal = data.total;
     lastResults = data.leads || [];
@@ -136,24 +140,43 @@ function leadCard(lead, idx) {
 
   const ratingClass = lead.rating != null && lead.rating <= 3.5 ? "bad" : lead.rating != null && lead.rating <= 4.2 ? "mid" : "";
 
+  // Schmerz-Score (heiß/warm/kühl) + Trend
+  const tierMap = { heiss: ["🔥 Heiß", "hot"], warm: ["☀ Warm", "warm"], kuehl: ["• Kühl", "cool"] };
+  const [tierTxt, tierCls] = tierMap[pain?.tier] || tierMap.kuehl;
+  const trend = pain?.trend;
+  const trendTxt =
+    trend?.dir === "fallend" ? `<span class="trend down">↘ Negativ-Trend</span>` :
+    trend?.dir === "steigend" ? `<span class="trend up">↗ Trend positiv</span>` : "";
+
+  // Schwächen / digitale Lücken als Chips
+  const weakChips = (pain?.weaknesses || [])
+    .map((w) => `<span class="weak-chip">${esc(w)}</span>`).join("");
+
+  const crmTag = lead.inCrm ? `<span class="crm-stage-tag">im CRM: ${esc(stageLabel(lead.crmStage || "neu"))}</span>` : "";
+
   c.innerHTML = `
     <div class="card-top">
       <div>
-        <h3>${esc(lead.name)}</h3>
+        <h3>${esc(lead.name)} ${crmTag}</h3>
         <div class="sub">${esc(lead.branche || lead.type)} · ${esc(lead.city)} · ${esc(lead.address || "")}</div>
       </div>
-      <div class="rating ${ratingClass}">${lead.rating ? "★ " + lead.rating : "–"} <span class="count">(${lead.reviewCount || 0})</span></div>
+      <div class="score-box">
+        <span class="score-badge ${tierCls}">${tierTxt} ${pain?.score ?? 0}</span>
+        <div class="rating ${ratingClass}">${lead.rating ? "★ " + lead.rating : "ohne Bewertung"} <span class="count">${lead.reviewCount ? "(" + lead.reviewCount + ")" : ""}</span></div>
+      </div>
     </div>
     <div class="contact">
       ${lead.phone ? `<a href="tel:${esc(lead.phone)}">📞 ${esc(lead.phone)}</a>` : ""}
       ${lead.email ? `<a href="mailto:${esc(lead.email)}">✉ ${esc(lead.email)}</a>` : `<span style="color:var(--muted)">✉ keine E-Mail gefunden</span>`}
-      ${lead.website ? `<a href="${esc(lead.website)}" target="_blank" rel="noopener">🌐 Website</a>` : ""}
-      ${lead.mapsUrl ? `<a href="${esc(lead.mapsUrl)}" target="_blank" rel="noopener">📍 Maps</a>` : ""}
+      ${lead.website ? `<a href="${esc(lead.website)}" target="_blank" rel="noopener">🌐 Website</a>` : `<span style="color:var(--muted)">🌐 keine Website</span>`}
+      ${lead.mapsUrl ? `<a href="${esc(lead.mapsUrl)}" target="_blank" rel="noopener">📍 Karte</a>` : ""}
       ${socials ? `<span class="socials">${socials}</span>` : ""}
+      ${trendTxt}
     </div>
+    ${weakChips ? `<div class="weak-row">${weakChips}</div>` : ""}
     ${negBlock}
     <div class="card-actions">
-      <button class="primary act-mail">Mail erzeugen</button>
+      <button class="primary act-mail">Ansprache erzeugen</button>
       <button class="ghost act-save">${lead.inCrm ? "✓ im CRM" : "Im CRM speichern"}</button>
     </div>`;
 
@@ -193,9 +216,18 @@ async function generateForLead(lead, btn) {
 
 let modalCtx = null;
 function openMailModal(lead, email) {
-  modalCtx = { lead, email };
+  const type = email.type || "email";
+  modalCtx = { lead, email, type };
+  // aktiven Tab markieren
+  document.querySelectorAll("#typeSwitch .ts").forEach((b) =>
+    b.classList.toggle("active", b.dataset.type === type)
+  );
+  const isMail = type === "email" || type === "kurz" || type === "followup";
+  $("#subjLabel").textContent = type === "anruf" ? "Überschrift" : type === "whatsapp" ? "Notiz" : "Betreff";
+  $("#mailMailto").textContent =
+    type === "whatsapp" ? "In WhatsApp öffnen" : type === "anruf" ? "Jetzt anrufen" : "Im Mailprogramm öffnen";
   $("#mailMeta").innerHTML =
-    `${esc(lead.name)} · ${esc(lead.email || "keine E-Mail")} · ` +
+    `${esc(lead.name)} · ${esc(lead.email || lead.phone || "kein Kontakt")} · ` +
     `Quelle: ${email.model === "vorlage" ? "Vorlage" : "Claude (" + esc(email.model) + ")"}` +
     (email.warning ? ` · <span style="color:var(--warn)">${esc(email.warning)}</span>` : "");
   $("#mailSubject").value = email.subject || "";
@@ -203,20 +235,47 @@ function openMailModal(lead, email) {
   $("#mailModal").classList.remove("hidden");
 }
 
+async function regenType(type) {
+  if (!modalCtx || type === modalCtx.type) return;
+  $("#mailBody").value = "… wird erzeugt …";
+  try {
+    const data = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ lead: modalCtx.lead, type }),
+    }).then((r) => r.json());
+    openMailModal(modalCtx.lead, data.email);
+  } catch (e) {
+    alert("Fehler: " + e.message);
+  }
+}
+
 function copyMail() {
-  const txt = `Betreff: ${$("#mailSubject").value}\n\n${$("#mailBody").value}`;
-  navigator.clipboard.writeText(txt).then(() => {
+  const t = modalCtx?.type;
+  const head = t === "anruf" || t === "whatsapp" ? "" : `Betreff: ${$("#mailSubject").value}\n\n`;
+  navigator.clipboard.writeText(head + $("#mailBody").value).then(() => {
     const b = $("#mailCopy");
     b.textContent = "✓ kopiert";
     setTimeout(() => (b.textContent = "Text kopieren"), 1500);
   });
 }
 
-function openMailto() {
-  const to = modalCtx?.lead?.email || "";
+function sendAction() {
+  const lead = modalCtx?.lead || {};
+  const type = modalCtx?.type;
+  const body = $("#mailBody").value;
+  if (type === "whatsapp") {
+    const num = (lead.phone || "").replace(/[^\d]/g, "").replace(/^0/, "49");
+    window.open(`https://wa.me/${num}?text=${encodeURIComponent(body)}`, "_blank");
+    return;
+  }
+  if (type === "anruf") {
+    if (lead.phone) window.location.href = `tel:${lead.phone}`;
+    return;
+  }
   const url =
-    `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent($("#mailSubject").value)}` +
-    `&body=${encodeURIComponent($("#mailBody").value)}`;
+    `mailto:${encodeURIComponent(lead.email || "")}?subject=${encodeURIComponent($("#mailSubject").value)}` +
+    `&body=${encodeURIComponent(body)}`;
   window.location.href = url;
 }
 
@@ -279,20 +338,32 @@ function renderCrm(leads, stages) {
 function crmRow(lead, stages) {
   const row = el("div", "crm-row");
   const mail = lead.generatedMail;
+
+  // Nachfass-Erinnerung: vor >5 Tagen kontaktiert, aber noch keine Antwort/Abschluss.
+  const days = lead.contactedAt ? Math.floor((Date.now() - lead.contactedAt) / 86400000) : null;
+  const needsFollowup = lead.stage === "kontaktiert" && days != null && days >= 5;
+  const reminder = needsFollowup
+    ? `<div class="reminder">⏰ vor ${days} Tagen kontaktiert — Zeit zum Nachfassen
+         <button class="link-btn act-followup">Nachfass-Mail erzeugen</button></div>`
+    : lead.contactedAt
+    ? `<div class="sub" style="margin-top:6px;color:var(--muted)">Kontaktiert vor ${days} Tag${days === 1 ? "" : "en"}</div>`
+    : "";
+
   row.innerHTML = `
     <div class="crm-main">
-      <h4>${esc(lead.name)}</h4>
+      <h4>${esc(lead.name)} ${lead.pain?.score != null ? `<span class="score-badge ${lead.pain.tier === "heiss" ? "hot" : lead.pain.tier === "warm" ? "warm" : "cool"}">${lead.pain.score}</span>` : ""}</h4>
       <div class="sub">${esc(lead.branche || lead.type)} · ${esc(lead.city)} ·
         ${lead.email ? `<a href="mailto:${esc(lead.email)}" style="color:var(--accent)">${esc(lead.email)}</a>` : "keine E-Mail"}
         ${lead.phone ? " · " + esc(lead.phone) : ""}
       </div>
       <div class="sub" style="margin-top:4px">→ ${esc(lead.pain?.bestSolution?.name || "")}</div>
+      ${reminder}
       <textarea class="note" placeholder="Notiz (Gesprächsverlauf, nächster Schritt …)">${esc(lead.note || "")}</textarea>
-      ${mail ? `<div class="crm-mail"><strong>Mail-Entwurf:</strong> ${esc(mail.subject)}<br>${esc((mail.body || "").slice(0, 140))}…</div>` : ""}
+      ${mail ? `<div class="crm-mail"><strong>Entwurf:</strong> ${esc(mail.subject)}<br>${esc((mail.body || "").slice(0, 140))}…</div>` : ""}
     </div>
     <div class="crm-side">
       <select class="stage-select">${stages.map((s) => `<option value="${s}" ${s === lead.stage ? "selected" : ""}>${stageLabel(s)}</option>`).join("")}</select>
-      <button class="ghost act-mail2">${mail ? "Mail ansehen" : "Mail erzeugen"}</button>
+      <button class="ghost act-mail2">${mail ? "Ansprache ansehen" : "Ansprache erzeugen"}</button>
       <button class="ghost del">Löschen</button>
     </div>`;
 
@@ -312,6 +383,18 @@ function crmRow(lead, stages) {
     openMailModal(lead, data.email);
     loadCrm();
   });
+  const fu = row.querySelector(".act-followup");
+  if (fu) {
+    fu.addEventListener("click", async (ev) => {
+      ev.target.textContent = "…";
+      const data = await fetch(`/api/lead/${lead.id}/email`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: "followup" }),
+      }).then((r) => r.json());
+      openMailModal(lead, data.email);
+    });
+  }
   row.querySelector(".del").addEventListener("click", async () => {
     if (!confirm(`„${lead.name}" aus dem CRM löschen?`)) return;
     await fetch(`/api/lead/${lead.id}`, { method: "DELETE" });

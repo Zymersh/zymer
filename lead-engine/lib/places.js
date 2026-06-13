@@ -5,6 +5,7 @@
 import { readFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { searchOsm } from "./osm.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const KEY = process.env.GOOGLE_MAPS_API_KEY || "";
@@ -142,10 +143,13 @@ async function searchDemo(branche, city) {
 }
 
 // --- Öffentliche Schnittstelle ---------------------------------------------
+// source: "auto" (Google falls Key, sonst Demo) | "google" | "osm" | "demo"
 
-export async function searchBusinesses(branche, city) {
-  if (KEY) {
-    return await searchGoogle(branche, city);
-  }
+export async function searchBusinesses(branche, city, source = "auto") {
+  if (source === "demo") return await searchDemo(branche, city);
+  if (source === "osm") return await searchOsm(branche, city);
+  if (source === "google") return await searchGoogle(branche, city);
+  // auto
+  if (KEY) return await searchGoogle(branche, city);
   return await searchDemo(branche, city);
 }

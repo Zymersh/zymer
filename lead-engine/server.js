@@ -10,7 +10,8 @@ import { dirname } from "node:path";
 
 import { searchBusinesses, hasGoogleKey } from "./lib/places.js";
 import { enrichLead } from "./lib/enrich.js";
-import { analyzePain, generateEmail } from "./lib/analyze.js";
+import { analyzePain, generateMessage } from "./lib/analyze.js";
+import { scoreLead } from "./lib/score.js";
 import * as store from "./lib/store.js";
 import { company, solutions, targetBranchen, regionCities } from "./config/pluszehn.js";
 
@@ -75,24 +76,32 @@ const server = createServer(async (req, res) => {
       });
     }
 
-    // Suche: Betriebe finden, schwache herausfiltern, anreichern, analysieren.
+    // Suche: (mehrere) Städte, Quelle wählbar, schwache filtern, scoren, sortieren.
     if (path === "/api/search" && req.method === "POST") {
-      const { branche, city, filter } = await readBody(req);
-      const raw = await searchBusinesses(branche || "", city || "");
+      const { branche, city, filter, source } = await readBody(req);
 
-      // 1) Top-Bewertungen rausfiltern — wir wollen nur Betriebe mit Luft nach oben.
-      //    "schwach" = ≤ 4,2★ (Standard), "sehrschwach" = ≤ 3,5★, "alle" = kein Filter.
-      const maxRating = filter === "sehrschwach" ? 3.5 : filter === "alle" ? 99 : 4.2;
-      let kept =
+      // Mehrere Städte: durch Komma getrennt (z. B. "Bühl, Achern, Rastatt").
+      const cities = String(city || "")
+        .split(",").map((s) => s.trim()).filter(Boolean);
+      const cityList = cities.length ? cities : [""];
+
+      // Aus allen Städten zusammentragen, Dubletten per ID entfernen.
+      const byId = new Map();
+      for (const c of cityList) {
+        const part = await searchBusinesses(branche || "", c, source || "auto");
+        for (const l of part) if (!byId.has(l.id)) byId.set(l.id, l);
+      }
+      const raw = [...byId.values()];
+
+      // Top-Bewertungen rausfiltern (Betriebe ohne Bewertung – z. B. OSM – bleiben).
+      const maxRating = filter === "sehrschwach" ? 3.5 : 99;
+      const kept =
         filter === "alle"
-          ? [...raw]
-          : raw.filter((l) => l.rating != null && l.rating <= maxRating);
+          ? raw
+          : raw.filter((l) => l.rating == null || l.rating <= (filter === "sehrschwach" ? 3.5 : 4.2));
 
-      // 2) Schlechteste zuerst — da ist der größte Hebel.
-      kept.sort((a, b) => (a.rating ?? 99) - (b.rating ?? 99));
-
-      // 3) Nur die übrig gebliebenen anreichern (spart Zeit) und analysieren.
-      const savedIds = new Set((await store.allLeads()).map((l) => l.id));
+      // Anreichern, analysieren, Schmerz-Score berechnen.
+      const savedById = new Map((await store.allLeads()).map((l) => [l.id, l]));
       const results = [];
       for (const lead of kept) {
         const contact = await enrichLead(lead);
@@ -100,19 +109,44 @@ const server = createServer(async (req, res) => {
         lead.emails = contact.emails || [];
         if (contact.phones?.length && !lead.phone) lead.phone = contact.phones[0];
         lead.socials = { ...(lead.socials || {}), ...(contact.socials || {}) };
+        lead.webGaps = contact.webGaps || [];
         lead.pain = analyzePain(lead);
-        lead.inCrm = savedIds.has(lead.id);
+        Object.assign(lead.pain, scoreLead(lead, lead.pain)); // score, tier, weaknesses, trend
+        const saved = savedById.get(lead.id);
+        lead.inCrm = Boolean(saved);
+        lead.crmStage = saved?.stage || null;
         results.push(lead);
       }
+
+      // Heißeste Leads zuerst.
+      results.sort((a, b) => (b.pain.score || 0) - (a.pain.score || 0));
       return json(res, 200, { count: results.length, total: raw.length, leads: results });
     }
 
-    // Akquise-Mail für einen (noch nicht gespeicherten) Betrieb erzeugen.
+    // CSV-Export der CRM-Leads.
+    if (path === "/api/export.csv" && req.method === "GET") {
+      const leads = await store.allLeads();
+      const head = ["Name", "Branche", "Stadt", "Adresse", "Telefon", "E-Mail", "Bewertung", "Score", "Status", "Notiz", "Website"];
+      const rows = leads.map((l) => [
+        l.name, l.branche || l.type, l.city, l.address, l.phone, l.email,
+        l.rating ?? "", l.pain?.score ?? "", l.stage, (l.note || "").replace(/\n/g, " "), l.website,
+      ]);
+      const csv = [head, ...rows]
+        .map((r) => r.map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`).join(";"))
+        .join("\r\n");
+      res.writeHead(200, {
+        "content-type": "text/csv; charset=utf-8",
+        "content-disposition": 'attachment; filename="pluszehn-leads.csv"',
+      });
+      return res.end("﻿" + csv); // BOM, damit Excel Umlaute korrekt zeigt
+    }
+
+    // Botschaft (Mail/Kurz/Anruf/WhatsApp/Nachfass) für einen Betrieb erzeugen.
     if (path === "/api/generate" && req.method === "POST") {
-      const { lead } = await readBody(req);
+      const { lead, type } = await readBody(req);
       if (!lead) return json(res, 400, { error: "lead fehlt" });
       const pain = lead.pain || analyzePain(lead);
-      const email = await generateEmail(lead, pain);
+      const email = await generateMessage(lead, pain, type || "email");
       return json(res, 200, { pain, email });
     }
 
@@ -133,6 +167,11 @@ const server = createServer(async (req, res) => {
     const leadMatch = path.match(/^\/api\/lead\/([^/]+)$/);
     if (leadMatch && req.method === "PATCH") {
       const patch = await readBody(req);
+      // Beim Wechsel auf "kontaktiert" den Zeitpunkt merken (für Nachfass-Erinnerung).
+      if (patch.stage === "kontaktiert") {
+        const cur = await store.getLead(leadMatch[1]);
+        if (cur && !cur.contactedAt) patch.contactedAt = Date.now();
+      }
       const updated = await store.patchLead(leadMatch[1], patch);
       if (!updated) return json(res, 404, { error: "lead nicht gefunden" });
       return json(res, 200, { lead: updated });
@@ -142,14 +181,17 @@ const server = createServer(async (req, res) => {
       return json(res, 200, { ok: true });
     }
 
-    // CRM: Mail für einen gespeicherten Lead erzeugen + ablegen.
+    // CRM: Botschaft für einen gespeicherten Lead erzeugen + ablegen.
     const genMatch = path.match(/^\/api\/lead\/([^/]+)\/email$/);
     if (genMatch && req.method === "POST") {
+      const { type } = await readBody(req);
       const lead = await store.getLead(genMatch[1]);
       if (!lead) return json(res, 404, { error: "lead nicht gefunden" });
       const pain = lead.pain || analyzePain(lead);
-      const email = await generateEmail(lead, pain);
-      const saved = await store.patchLead(lead.id, { generatedMail: email, pain });
+      const email = await generateMessage(lead, pain, type || "email");
+      // Nur die Standard-Mail dauerhaft als Entwurf merken.
+      const patch = (type && type !== "email") ? {} : { generatedMail: email };
+      const saved = await store.patchLead(lead.id, patch);
       return json(res, 200, { lead: saved, email });
     }
 

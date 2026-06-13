@@ -165,6 +165,30 @@ button { font-family: inherit; cursor: pointer; }
 .legal { margin-top: 14px; font-size: 11.5px; color: var(--muted); line-height: 1.5; background: rgba(245,166,35,.08); border: 1px solid rgba(245,166,35,.25); border-radius: 10px; padding: 10px 12px; }
 
 .footer { text-align: center; color: var(--muted); font-size: 12px; padding: 24px; border-top: 1px solid var(--border); }
+/* Score / Schwächen / Trend */
+.lbl-hint { color: var(--muted); font-weight: 400; }
+.score-box { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.score-badge { font-size: 12px; font-weight: 800; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.score-badge.hot { background: rgba(248,113,113,.15); color: #ff6b6b; border: 1px solid rgba(248,113,113,.4); }
+.score-badge.warm { background: rgba(245,166,35,.15); color: var(--warn); border: 1px solid rgba(245,166,35,.4); }
+.score-badge.cool { background: var(--panel-2); color: var(--muted); border: 1px solid var(--border); }
+.weak-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 2px; }
+.weak-chip { font-size: 11.5px; padding: 3px 9px; border-radius: 999px; background: rgba(245,166,35,.1); color: var(--warn); border: 1px solid rgba(245,166,35,.3); }
+.trend { font-size: 12px; font-weight: 700; }
+.trend.down { color: var(--danger); }
+.trend.up { color: var(--accent); }
+.crm-stage-tag { font-size: 11px; font-weight: 600; color: var(--accent); background: rgba(52,211,153,.1); border: 1px solid rgba(52,211,153,.3); padding: 2px 8px; border-radius: 999px; vertical-align: middle; }
+
+/* Typ-Umschalter im Modal */
+.type-switch { display: flex; gap: 6px; flex-wrap: wrap; margin: 12px 0 6px; }
+.ts { background: var(--panel-2); border: 1px solid var(--border); color: var(--muted); padding: 7px 12px; border-radius: 8px; font-size: 12.5px; font-weight: 600; }
+.ts.active { background: var(--accent); color: #06251a; border-color: var(--accent); }
+
+/* CRM Nachfass + Export */
+.export-btn { text-decoration: none; font-size: 12.5px; margin-left: auto; }
+.reminder { margin: 8px 0; padding: 8px 11px; background: rgba(245,166,35,.1); border: 1px solid rgba(245,166,35,.3); border-radius: 9px; font-size: 12.5px; color: var(--warn); }
+.link-btn { background: none; border: none; color: var(--accent); font-weight: 700; cursor: pointer; padding: 0 0 0 6px; font-size: 12.5px; }
+
 .empty { color: var(--muted); font-size: 14px; padding: 30px; text-align: center; }
 .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,.3); border-top-color: #06251a; border-radius: 50%; animation: spin .7s linear infinite; vertical-align: -2px; }
 @keyframes spin { to { transform: rotate(360deg); } }

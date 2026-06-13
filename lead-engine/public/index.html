@@ -32,9 +32,17 @@
         <select id="branche"></select>
       </div>
       <div class="field">
-        <label>Stadt / Umgebung</label>
-        <input id="city" list="cityList" placeholder="z. B. Bühl" />
+        <label>Stadt / Umgebung <span class="lbl-hint">(mehrere mit Komma)</span></label>
+        <input id="city" list="cityList" placeholder="z. B. Bühl, Achern, Rastatt" />
         <datalist id="cityList"></datalist>
+      </div>
+      <div class="field">
+        <label>Datenquelle</label>
+        <select id="source">
+          <option value="auto" selected>Automatisch</option>
+          <option value="osm">OpenStreetMap (gratis, kein Key)</option>
+          <option value="demo">Demo-Daten</option>
+        </select>
       </div>
       <div class="field">
         <label>Bewertungs-Filter</label>
@@ -65,6 +73,7 @@
     <div class="crm-toolbar">
       <h2>Pipeline</h2>
       <div class="crm-filter" id="stageFilter"></div>
+      <a class="ghost export-btn" href="/api/export.csv" download>⬇ CSV-Export</a>
     </div>
     <div id="crmList" class="crm-list"></div>
   </main>
@@ -73,13 +82,20 @@
   <div id="mailModal" class="modal hidden">
     <div class="modal-box">
       <div class="modal-head">
-        <h3>Personalisierte Akquise-Mail</h3>
+        <h3>Personalisierte Ansprache</h3>
         <button id="mailClose" class="icon-btn">✕</button>
       </div>
+      <div class="type-switch" id="typeSwitch">
+        <button data-type="email" class="ts active">E-Mail</button>
+        <button data-type="kurz" class="ts">Kurz-Mail</button>
+        <button data-type="anruf" class="ts">Anruf-Skript</button>
+        <button data-type="whatsapp" class="ts">WhatsApp</button>
+        <button data-type="followup" class="ts">Nachfass</button>
+      </div>
       <div class="mail-meta" id="mailMeta"></div>
-      <label class="mlabel">Betreff</label>
+      <label class="mlabel" id="subjLabel">Betreff</label>
       <input id="mailSubject" class="mail-subject" />
-      <label class="mlabel">Nachricht</label>
+      <label class="mlabel">Text</label>
       <textarea id="mailBody" class="mail-body" rows="14"></textarea>
       <div class="modal-actions">
         <button id="mailCopy" class="ghost">Text kopieren</button>

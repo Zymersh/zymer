@@ -43,6 +43,10 @@ async function fetchText(url, ms = 8000) {
   }
 }
 
+// Digitale Lücken auf der Website erkennen — jede ist ein Aufhänger für den KI-Check.
+const BOOKING_RE = /calendly|doctolib|terminland|timify|jameda|appointed|online[\s-]?termin|termin\s*(buchen|vereinbaren)|jetzt buchen|book(ing)?\b/i;
+const FORM_RE = /<form[\s>]|kontaktformular|contact-form/i;
+
 function extractFrom(html) {
   const emails = cleanEmails(html.match(EMAIL_RE) || []);
   const phones = [...new Set((html.match(PHONE_RE) || []).map((p) => p.trim()))].slice(0, 3);
@@ -51,7 +55,13 @@ function extractFrom(html) {
     const m = html.match(re);
     if (m) socials[k] = "https://" + m[0].replace(/^https?:\/\//, "");
   }
-  return { emails, phones, socials };
+  return {
+    emails,
+    phones,
+    socials,
+    hasBooking: BOOKING_RE.test(html),
+    hasForm: FORM_RE.test(html),
+  };
 }
 
 function impressumCandidates(website) {
@@ -72,12 +82,15 @@ export async function enrichLead(lead) {
       emails: lead.email ? [lead.email] : [],
       phones: lead.phone ? [lead.phone] : [],
       socials: lead.socials || {},
+      webGaps: lead.webGaps || [],
       enriched: true,
     };
   }
-  if (!lead.website) return { emails: [], phones: [], socials: {}, enriched: false };
+  if (!lead.website) {
+    return { emails: [], phones: [], socials: {}, webGaps: ["Keine Online-Terminbuchung"], enriched: false };
+  }
 
-  const merged = { emails: [], phones: [], socials: {} };
+  const merged = { emails: [], phones: [], socials: {}, hasBooking: false, hasForm: false };
   for (const url of impressumCandidates(lead.website)) {
     const html = await fetchText(url);
     if (!html) continue;
@@ -85,13 +98,18 @@ export async function enrichLead(lead) {
     merged.emails.push(...got.emails);
     merged.phones.push(...got.phones);
     Object.assign(merged.socials, got.socials);
-    // Genug gefunden? Dann nicht weiter crawlen.
+    merged.hasBooking = merged.hasBooking || got.hasBooking;
+    merged.hasForm = merged.hasForm || got.hasForm;
     if (merged.emails.length && Object.keys(merged.socials).length) break;
   }
+  const webGaps = [];
+  if (!merged.hasBooking) webGaps.push("Keine Online-Terminbuchung");
+  if (!merged.hasForm) webGaps.push("Kein Kontaktformular");
   return {
     emails: cleanEmails(merged.emails),
     phones: [...new Set(merged.phones)].slice(0, 3),
     socials: merged.socials,
+    webGaps,
     enriched: true,
   };
 }
