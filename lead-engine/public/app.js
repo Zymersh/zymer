@@ -73,6 +73,7 @@ async function runSearch() {
   const branche = $("#branche").value || $("#branche").selectedOptions[0]?.text || "";
   const brancheLabel = $("#branche").selectedOptions[0]?.text || branche;
   const city = $("#city").value.trim();
+  const filter = $("#filter").value;
   const btn = $("#searchBtn");
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span> Suche läuft …';
@@ -81,8 +82,9 @@ async function runSearch() {
     const data = await fetch("/api/search", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ branche: brancheLabel === "— Branche wählen —" ? "" : brancheLabel, city }),
+      body: JSON.stringify({ branche: brancheLabel === "— Branche wählen —" ? "" : brancheLabel, city, filter }),
     }).then((r) => r.json());
+    window.__lastTotal = data.total;
     lastResults = data.leads || [];
     renderResults();
   } catch (e) {
@@ -97,11 +99,19 @@ function renderResults() {
   const wrap = $("#results");
   wrap.innerHTML = "";
   if (!lastResults.length) {
-    wrap.innerHTML = `<div class="empty">Keine Betriebe gefunden. Andere Branche oder Stadt probieren.</div>`;
+    wrap.innerHTML = `<div class="empty">Keine passenden Betriebe. Tipp: Filter auf „Alle anzeigen" stellen oder andere Branche/Stadt probieren.</div>`;
     setMarkers([]);
     return;
   }
   $("#searchHint").style.display = "none";
+  const total = window.__lastTotal;
+  if (total && total > lastResults.length) {
+    wrap.append(
+      el("div", "result-info",
+        `${lastResults.length} relevante Betriebe (schlechteste zuerst) · ` +
+        `${total - lastResults.length} Top-Betriebe ausgeblendet`)
+    );
+  }
   lastResults.forEach((lead, i) => wrap.append(leadCard(lead, i)));
   setMarkers(lastResults);
 }
@@ -113,10 +123,18 @@ function leadCard(lead, idx) {
     .map(([k, url]) => `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(k)}</a>`)
     .join("");
 
-  const evidence =
-    pain?.evidence?.length
-      ? `<ul class="evidence">${pain.evidence.map((e) => `<li>„${esc(e.text)}"</li>`).join("")}</ul>`
-      : "";
+  const neg = pain?.negativeReviews || [];
+  const negBlock = neg.length
+    ? `<div class="pain">
+         <div class="pain-head">
+           <span class="neg-badge">⚠ ${neg.length} schlechte Bewertung${neg.length > 1 ? "en" : ""}</span>
+           <span class="conf">Ansatzpunkt: ${esc(pain?.bestSolution?.name || "Automatisierung")}</span>
+         </div>
+         <ul class="evidence">${neg.map((r) => `<li><span class="stars">${"★".repeat(r.rating || 1)}</span> „${esc(r.text)}"</li>`).join("")}</ul>
+       </div>`
+    : `<div class="pain muted-pain">Keine negativen Bewertungstexte sichtbar — Ansatz: allgemeiner KI-Check (${esc(pain?.bestSolution?.name || "Automatisierung")}).</div>`;
+
+  const ratingClass = lead.rating != null && lead.rating <= 3.5 ? "bad" : lead.rating != null && lead.rating <= 4.2 ? "mid" : "";
 
   c.innerHTML = `
     <div class="card-top">
@@ -124,7 +142,7 @@ function leadCard(lead, idx) {
         <h3>${esc(lead.name)}</h3>
         <div class="sub">${esc(lead.branche || lead.type)} · ${esc(lead.city)} · ${esc(lead.address || "")}</div>
       </div>
-      <div class="rating">${lead.rating ? "★ " + lead.rating : "–"} <span class="count">(${lead.reviewCount || 0})</span></div>
+      <div class="rating ${ratingClass}">${lead.rating ? "★ " + lead.rating : "–"} <span class="count">(${lead.reviewCount || 0})</span></div>
     </div>
     <div class="contact">
       ${lead.phone ? `<a href="tel:${esc(lead.phone)}">📞 ${esc(lead.phone)}</a>` : ""}
@@ -133,15 +151,7 @@ function leadCard(lead, idx) {
       ${lead.mapsUrl ? `<a href="${esc(lead.mapsUrl)}" target="_blank" rel="noopener">📍 Maps</a>` : ""}
       ${socials ? `<span class="socials">${socials}</span>` : ""}
     </div>
-    <div class="pain">
-      <div class="pain-head">
-        <span class="sol-badge">→ Lösung ${esc(pain?.bestSolution?.nr || "")}: ${esc(pain?.bestSolution?.name || "")}</span>
-        <span class="conf ${pain?.confidence === "konkret" ? "konkret" : ""}">
-          ${pain?.confidence === "konkret" ? "konkreter Hinweis in Bewertungen" : "branchenbasierte Empfehlung"}
-        </span>
-      </div>
-      ${evidence}
-    </div>
+    ${negBlock}
     <div class="card-actions">
       <button class="primary act-mail">Mail erzeugen</button>
       <button class="ghost act-save">${lead.inCrm ? "✓ im CRM" : "Im CRM speichern"}</button>

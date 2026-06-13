@@ -36,13 +36,22 @@
         <input id="city" list="cityList" placeholder="z. B. Bühl" />
         <datalist id="cityList"></datalist>
       </div>
+      <div class="field">
+        <label>Bewertungs-Filter</label>
+        <select id="filter">
+          <option value="schwach" selected>Nur Schwachstellen (≤ 4,2★) — empfohlen</option>
+          <option value="sehrschwach">Nur schwache (≤ 3,5★)</option>
+          <option value="alle">Alle anzeigen</option>
+        </select>
+      </div>
       <button id="searchBtn" class="primary">Betriebe finden</button>
     </section>
 
     <p class="hint" id="searchHint">
-      Branche und Stadt wählen, dann <strong>Betriebe finden</strong>. Die Engine liest die
-      Google-Bewertungen, erkennt Schmerzpunkte und ordnet jedem Betrieb die passende
-      pluszehn-Lösung zu.
+      Branche und Stadt wählen, dann <strong>Betriebe finden</strong>. Die Engine blendet
+      Top-Betriebe aus, zeigt die <strong>schlechtesten zuerst</strong>, liest die negativen
+      Google-Bewertungen und schlägt eine persönliche Mail mit Angebot eines
+      <strong>kostenlosen KI-Checks</strong> vor.
     </p>
 
     <div class="results-layout">

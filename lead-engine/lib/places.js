@@ -23,43 +23,61 @@ export function hasGoogleKey() {
 
 // --- Live-Modus: Google Places API (New) -----------------------------------
 
+// Bis zu 3 Seiten à 20 = max. 60 Betriebe pro Suche (Google-Pagination).
+const MAX_PAGES = 3;
+
 async function searchGoogle(branche, city) {
-  const body = {
-    textQuery: `${branche} in ${city}`,
-    languageCode: "de",
-    regionCode: "DE",
-    maxResultCount: 20,
-  };
-  const res = await fetch("https://places.googleapis.com/v1/places:searchText", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Goog-Api-Key": KEY,
-      // 30+ Felder möglich — wir holen genau das, was die Akquise braucht.
-      "X-Goog-FieldMask": [
-        "places.id",
-        "places.displayName",
-        "places.formattedAddress",
-        "places.internationalPhoneNumber",
-        "places.nationalPhoneNumber",
-        "places.websiteUri",
-        "places.rating",
-        "places.userRatingCount",
-        "places.googleMapsUri",
-        "places.primaryTypeDisplayName",
-        "places.location",
-        "places.reviews",
-      ].join(","),
-    },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) {
-    const txt = await res.text().catch(() => "");
-    throw new Error(`Google Places ${res.status}: ${txt.slice(0, 300)}`);
+  const fieldMask = [
+    "nextPageToken",
+    "places.id",
+    "places.displayName",
+    "places.formattedAddress",
+    "places.internationalPhoneNumber",
+    "places.nationalPhoneNumber",
+    "places.websiteUri",
+    "places.rating",
+    "places.userRatingCount",
+    "places.googleMapsUri",
+    "places.primaryTypeDisplayName",
+    "places.location",
+    "places.reviews",
+  ].join(",");
+
+  const collected = [];
+  let pageToken = null;
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const body = {
+      textQuery: `${branche} in ${city}`,
+      languageCode: "de",
+      regionCode: "DE",
+      maxResultCount: 20,
+    };
+    if (pageToken) body.pageToken = pageToken;
+
+    const res = await fetch("https://places.googleapis.com/v1/places:searchText", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": KEY,
+        "X-Goog-FieldMask": fieldMask,
+      },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const txt = await res.text().catch(() => "");
+      // Erste Seite muss klappen; spätere Seiten bei Fehler einfach abbrechen.
+      if (page === 0) throw new Error(`Google Places ${res.status}: ${txt.slice(0, 300)}`);
+      break;
+    }
+    const data = await res.json();
+    collected.push(...(data.places || []));
+    pageToken = data.nextPageToken || null;
+    if (!pageToken) break;
+    // Google braucht einen kurzen Moment, bis das nächste Seiten-Token aktiv ist.
+    await new Promise((r) => setTimeout(r, 1500));
   }
-  const data = await res.json();
-  const places = data.places || [];
-  return places.map((p) => {
+
+  return collected.map((p) => {
     const name = p.displayName?.text || "Unbekannt";
     const address = p.formattedAddress || "";
     return {

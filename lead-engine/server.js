@@ -75,13 +75,26 @@ const server = createServer(async (req, res) => {
       });
     }
 
-    // Suche: Betriebe finden, anreichern, Schmerzpunkte analysieren.
+    // Suche: Betriebe finden, schwache herausfiltern, anreichern, analysieren.
     if (path === "/api/search" && req.method === "POST") {
-      const { branche, city } = await readBody(req);
+      const { branche, city, filter } = await readBody(req);
       const raw = await searchBusinesses(branche || "", city || "");
+
+      // 1) Top-Bewertungen rausfiltern — wir wollen nur Betriebe mit Luft nach oben.
+      //    "schwach" = ≤ 4,2★ (Standard), "sehrschwach" = ≤ 3,5★, "alle" = kein Filter.
+      const maxRating = filter === "sehrschwach" ? 3.5 : filter === "alle" ? 99 : 4.2;
+      let kept =
+        filter === "alle"
+          ? [...raw]
+          : raw.filter((l) => l.rating != null && l.rating <= maxRating);
+
+      // 2) Schlechteste zuerst — da ist der größte Hebel.
+      kept.sort((a, b) => (a.rating ?? 99) - (b.rating ?? 99));
+
+      // 3) Nur die übrig gebliebenen anreichern (spart Zeit) und analysieren.
       const savedIds = new Set((await store.allLeads()).map((l) => l.id));
       const results = [];
-      for (const lead of raw) {
+      for (const lead of kept) {
         const contact = await enrichLead(lead);
         if (contact.emails?.length) lead.email = contact.emails[0];
         lead.emails = contact.emails || [];
@@ -91,7 +104,7 @@ const server = createServer(async (req, res) => {
         lead.inCrm = savedIds.has(lead.id);
         results.push(lead);
       }
-      return json(res, 200, { count: results.length, leads: results });
+      return json(res, 200, { count: results.length, total: raw.length, leads: results });
     }
 
     // Akquise-Mail für einen (noch nicht gespeicherten) Betrieb erzeugen.

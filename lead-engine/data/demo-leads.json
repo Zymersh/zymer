@@ -266,5 +266,162 @@
       { "rating": 2, "text": "Nach dem Vor-Ort-Termin kam wochenlang kein Angebot. Ich habe zweimal angerufen und um Rückruf gebeten — vergeblich.", "time": "vor 2 Wochen" },
       { "rating": 5, "text": "Wunderschöne Gartengestaltung, sehr kreativ.", "time": "vor 4 Monaten" }
     ]
+  },
+  {
+    "id": "lead_demo_sani2",
+    "placeId": null,
+    "name": "Heizung & Bad Wunsch",
+    "branche": "Sanitär & Heizung",
+    "type": "Heizungsbau",
+    "city": "Achern",
+    "address": "Allerheiligenstraße 7, 77855 Achern",
+    "phone": "+49 7841 667788",
+    "website": "https://heizung-bad-wunsch.de",
+    "email": "info@heizung-bad-wunsch.de",
+    "rating": 2.9,
+    "reviewCount": 38,
+    "mapsUrl": "https://maps.google.com/?q=Heizung+Bad+Wunsch+Achern",
+    "lat": 48.6301,
+    "lng": 8.0719,
+    "socials": {},
+    "reviews": [
+      { "rating": 1, "text": "Man erreicht einfach niemanden. Dreimal angerufen, immer nur die Mailbox, kein Rückruf. Am Ende habe ich eine andere Firma genommen.", "time": "vor 4 Tagen" },
+      { "rating": 2, "text": "Auf das Angebot habe ich über einen Monat gewartet und mehrfach nachgehakt. Die Kommunikation ist das große Problem.", "time": "vor 2 Wochen" },
+      { "rating": 4, "text": "Die eigentliche Arbeit war in Ordnung.", "time": "vor 3 Monaten" }
+    ]
+  },
+  {
+    "id": "lead_demo_resto1",
+    "placeId": null,
+    "name": "Trattoria da Vinci",
+    "branche": "Restaurant / Gastronomie",
+    "type": "Restaurant",
+    "city": "Bühl",
+    "address": "Johannesplatz 3, 77815 Bühl",
+    "phone": "+49 7223 232425",
+    "website": "https://trattoria-davinci-buehl.de",
+    "email": "reservierung@trattoria-davinci-buehl.de",
+    "rating": 3.4,
+    "reviewCount": 142,
+    "mapsUrl": "https://maps.google.com/?q=Trattoria+da+Vinci+Bühl",
+    "lat": 48.6957,
+    "lng": 8.1369,
+    "socials": { "instagram": "https://instagram.com/davinci_buehl", "facebook": "https://facebook.com/davincibuehl" },
+    "reviews": [
+      { "rating": 2, "text": "Telefonisch für eine Reservierung kaum durchzukommen, es geht einfach niemand ran. Schade, das Essen ist eigentlich gut.", "time": "vor 1 Woche" },
+      { "rating": 1, "text": "Online-Reservierung gibt es nicht und am Telefon erreicht man niemanden. Sehr umständlich.", "time": "vor 3 Wochen" },
+      { "rating": 5, "text": "Sehr leckere Pasta, nette Bedienung.", "time": "vor 2 Monaten" }
+    ]
+  },
+  {
+    "id": "lead_demo_kosm1",
+    "placeId": null,
+    "name": "Kosmetikstudio Belle Vie",
+    "branche": "Kosmetikstudio",
+    "type": "Kosmetikstudio",
+    "city": "Rastatt",
+    "address": "Poststraße 14, 76437 Rastatt",
+    "phone": "+49 7222 343536",
+    "website": "https://bellevie-rastatt.de",
+    "email": "termin@bellevie-rastatt.de",
+    "rating": 3.2,
+    "reviewCount": 29,
+    "mapsUrl": "https://maps.google.com/?q=Kosmetikstudio+Belle+Vie+Rastatt",
+    "lat": 48.8578,
+    "lng": 8.2089,
+    "socials": { "instagram": "https://instagram.com/bellevie_rastatt" },
+    "reviews": [
+      { "rating": 2, "text": "Einen Termin zu bekommen ist mühsam, telefonisch schwer erreichbar und auf Nachrichten kommt oft keine Rückmeldung.", "time": "vor 6 Tagen" },
+      { "rating": 2, "text": "Ich habe zweimal um einen Rückruf gebeten und nie etwas gehört.", "time": "vor 1 Monat" }
+    ]
+  },
+  {
+    "id": "lead_demo_schrei1",
+    "placeId": null,
+    "name": "Schreinerei Wörner",
+    "branche": "Schreiner / Tischler",
+    "type": "Schreinerei",
+    "city": "Gaggenau",
+    "address": "Murgtalstraße 22, 76571 Gaggenau",
+    "phone": "+49 7225 454647",
+    "website": "https://schreinerei-woerner.de",
+    "email": "info@schreinerei-woerner.de",
+    "rating": 3.8,
+    "reviewCount": 21,
+    "mapsUrl": "https://maps.google.com/?q=Schreinerei+Wörner+Gaggenau",
+    "lat": 48.8049,
+    "lng": 8.3193,
+    "socials": {},
+    "reviews": [
+      { "rating": 2, "text": "Nach dem Aufmaß habe ich wochenlang auf das Angebot gewartet und nichts mehr gehört. Mehrfaches Nachfassen nötig.", "time": "vor 2 Wochen" },
+      { "rating": 5, "text": "Top Möbel, sehr saubere Verarbeitung.", "time": "vor 5 Monaten" }
+    ]
+  },
+  {
+    "id": "lead_demo_haus1",
+    "placeId": null,
+    "name": "Hausarztpraxis Dr. Lang",
+    "branche": "Hausarztpraxis",
+    "type": "Allgemeinmedizin",
+    "city": "Bühl",
+    "address": "Güterstraße 5, 77815 Bühl",
+    "phone": "+49 7223 565758",
+    "website": "https://hausarzt-lang-buehl.de",
+    "email": "praxis@hausarzt-lang-buehl.de",
+    "rating": 3.1,
+    "reviewCount": 84,
+    "mapsUrl": "https://maps.google.com/?q=Hausarztpraxis+Lang+Bühl",
+    "lat": 48.6939,
+    "lng": 8.1388,
+    "socials": {},
+    "reviews": [
+      { "rating": 1, "text": "Die Telefonzeiten sind eine Katastrophe. Man hängt ewig in der Warteschleife und kommt nicht durch, um einen Termin zu bekommen.", "time": "vor 3 Tagen" },
+      { "rating": 2, "text": "Ständig besetzt, kein Rückruf-Service. Für Berufstätige fast unmöglich, jemanden zu erreichen.", "time": "vor 2 Wochen" },
+      { "rating": 5, "text": "Der Arzt selbst nimmt sich viel Zeit, sehr kompetent.", "time": "vor 1 Monat" }
+    ]
+  },
+  {
+    "id": "lead_demo_top1",
+    "placeId": null,
+    "name": "Elektro Hügel Meisterbetrieb",
+    "branche": "Elektriker",
+    "type": "Elektroinstallation",
+    "city": "Bühl",
+    "address": "Siemensstraße 4, 77815 Bühl",
+    "phone": "+49 7223 919293",
+    "website": "https://elektro-huegel.de",
+    "email": "info@elektro-huegel.de",
+    "rating": 4.9,
+    "reviewCount": 117,
+    "mapsUrl": "https://maps.google.com/?q=Elektro+Hügel+Bühl",
+    "lat": 48.6925,
+    "lng": 8.1419,
+    "socials": { "instagram": "https://instagram.com/elektrohuegel" },
+    "reviews": [
+      { "rating": 5, "text": "Hervorragender Service, immer erreichbar, Angebote kommen blitzschnell. Vorbildlich organisiert.", "time": "vor 1 Woche" },
+      { "rating": 5, "text": "Perfekt von A bis Z, absolute Empfehlung.", "time": "vor 1 Monat" }
+    ]
+  },
+  {
+    "id": "lead_demo_top2",
+    "placeId": null,
+    "name": "Zahnärzte am Marktplatz",
+    "branche": "Zahnarztpraxis",
+    "type": "Zahnarzt",
+    "city": "Bühl",
+    "address": "Marktplatz 2, 77815 Bühl",
+    "phone": "+49 7223 818283",
+    "website": "https://zahnaerzte-marktplatz-buehl.de",
+    "email": "praxis@zahnaerzte-marktplatz-buehl.de",
+    "rating": 4.8,
+    "reviewCount": 203,
+    "mapsUrl": "https://maps.google.com/?q=Zahnärzte+am+Marktplatz+Bühl",
+    "lat": 48.6959,
+    "lng": 8.1361,
+    "socials": { "instagram": "https://instagram.com/zahnaerzte_marktplatz" },
+    "reviews": [
+      { "rating": 5, "text": "Super Organisation, Online-Terminbuchung, immer erreichbar. So muss eine moderne Praxis sein.", "time": "vor 2 Wochen" },
+      { "rating": 5, "text": "Top Team, alles digital und reibungslos.", "time": "vor 2 Monaten" }
+    ]
   }
 ]
