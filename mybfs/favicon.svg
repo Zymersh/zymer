@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs><clipPath id="c"><rect width="64" height="64" rx="18"/></clipPath></defs>
+  <g clip-path="url(#c)">
+    <rect width="64" height="64" fill="#141311"/>
+    <path d="M0 50 L64 40 V64 H0 Z" fill="#e4572e"/>
+  </g>
+  <text x="32" y="38" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="24" letter-spacing="-1.5" fill="#f3efe7">bfs</text>
+</svg>
