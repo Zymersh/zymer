@@ -1,0 +1,51 @@
+---
+title: Anamnesebogen zur ganzheitlichen Behandlung – online ausfüllen oder als PDF · Christine Müller
+description: Füllen Sie den Anamnesebogen der Naturheilpraxis Christine Müller bequem online aus oder laden Sie ihn als PDF herunter – für ein ganzheitliches Bild vor Ihrem ersten Termin.
+nav: anamnesebogen
+scripts: anamnese.js
+---
+  <section class="page-hero" aria-labelledby="page-title">
+    <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+    <img class="leaf-deco" src="assets/img/leaf.webp" alt="" aria-hidden="true">
+    <div class="container">
+      <span class="eyebrow fade-in">Vor Ihrem ersten Termin</span>
+      <h1 id="page-title" class="hero__title" style="max-width:16ch">
+        <span class="line"><span>Anamnesebogen</span></span>
+        <span class="line"><span><em>zur ganzheitlichen Behandlung</em></span></span>
+      </h1>
+      <p class="lead fade-in d1">Dieser Fragebogen gibt Ihnen die Möglichkeit, in aller Ruhe über sämtliche Geschehnisse in und rund um Ihren Körper nachzudenken – vieles gerät im Laufe der Jahre in Vergessenheit. So kann ich mir ein persönliches, individuelles Bild machen, welches für eine ganzheitliche Diagnostik und Therapie unverzichtbar ist.</p>
+    </div>
+  </section>
+
+  <section class="section section--tight no-print" aria-label="Ausfüllmöglichkeiten">
+    <div class="container choice-grid">
+      <div class="choice choice--dark reveal">
+        <div>
+          <div class="choice__icon" aria-hidden="true"><svg width="26" height="26"><use href="#i-edit"/></svg></div>
+          <h3>Online ausfüllen</h3>
+          <p>Bequem am Smartphone oder Computer in acht kurzen Schritten – anschließend wird der Bogen direkt an mich gesendet.</p>
+        </div>
+        <a class="btn btn--light" href="#online">Jetzt online ausfüllen <span class="arrow" aria-hidden="true"><svg width="14" height="14"><use href="#i-arrow"/></svg></span></a>
+      </div>
+      <div class="choice reveal" data-delay="1">
+        <div>
+          <div class="choice__icon" aria-hidden="true"><svg width="26" height="26"><use href="#i-download"/></svg></div>
+          <h3>Als PDF herunterladen</h3>
+          <p>Lieber auf Papier? Laden Sie den Anamnesebogen herunter, drucken Sie ihn aus und bringen Sie ihn ausgefüllt zu Ihrem ersten Termin mit.</p>
+          <small>PDF · 6 Seiten · ca. 5 MB</small>
+        </div>
+        <a class="btn btn--ghost" href="assets/docs/Anamnesebogen-Christine-Mueller.pdf" download>PDF herunterladen <span class="arrow" aria-hidden="true"><svg width="14" height="14"><use href="#i-download"/></svg></span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--tight" id="online" aria-labelledby="form-title">
+    <div class="container container--narrow">
+      <h2 id="form-title" class="sr-only">Anamnesebogen online ausfüllen</h2>
+      <div class="form-card reveal no-print">
+        <form id="anamnese-form" data-form="anamnese" data-stepper novalidate action="api/send.php" method="post">
+          <noscript><p>Für das Online-Formular wird JavaScript benötigt. Alternativ können Sie den Anamnesebogen <a href="assets/docs/Anamnesebogen-Christine-Mueller.pdf">als PDF herunterladen</a>.</p></noscript>
+        </form>
+      </div>
+    </div>
+  </section>

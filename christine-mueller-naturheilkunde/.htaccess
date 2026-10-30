@@ -1,0 +1,17 @@
+# Weiterleitungen von Adressen der bisherigen Website (Apache)
+<IfModule mod_alias.c>
+  RedirectMatch 301 ^/ueber-mich/?$ /ueber-mich.html
+  RedirectMatch 301 ^/kontakt/?$ /kontakt.html
+  RedirectMatch 301 ^/impressum/?$ /impressum.html
+  RedirectMatch 301 ^/datenschutz/?$ /datenschutz.html
+  RedirectMatch 301 ^/anamnesebogen-ausfuellen/?$ /anamnesebogen.html
+  RedirectMatch 301 ^/anamnesebogen/?$ /anamnesebogen.html
+  RedirectMatch 301 ^/diagnostik/?$ /diagnostik.html
+  RedirectMatch 301 ^/behandlung-therapieverfahren/?$ /behandlung.html
+  RedirectMatch 301 ^/behandlung/?$ /behandlung.html
+  RedirectMatch 301 ^/naturheilkunde/?$ /behandlung.html
+  RedirectMatch 301 ^/vitamin-c-hochdosis-infusionen/?$ /behandlung.html#infusionen
+  RedirectMatch 301 ^/gutscheine/?$ /gutscheine.html
+  # Quellordner nicht ausliefern
+  RedirectMatch 404 ^/_src(/|$)
+</IfModule>

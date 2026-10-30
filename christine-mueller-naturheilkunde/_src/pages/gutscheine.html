@@ -1,0 +1,136 @@
+---
+title: Gutscheine – Gesundheit & Wohlbefinden verschenken · Naturheilpraxis Christine Müller
+description: Verschenken Sie Wohlbefinden: Wert- und Behandlungsgutscheine der Naturheilpraxis Christine Müller in Steinmauern – z. B. für IHHT-Höhentraining oder die 14-tägige Leberreinigung. Einfach online bestellen.
+nav: gutscheine
+---
+  <section class="page-hero" aria-labelledby="page-title">
+    <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+    <img class="leaf-deco" src="assets/img/leaf.webp" alt="" aria-hidden="true">
+    <div class="container">
+      <span class="eyebrow fade-in">Gutscheine</span>
+      <h1 id="page-title" class="hero__title" style="max-width:15ch">
+        <span class="line"><span>Wohlbefinden</span></span>
+        <span class="line"><span><em>verschenken</em></span></span>
+      </h1>
+      <p class="lead fade-in d1">Ob zum Geburtstag, zu Weihnachten oder einfach so: Mit einem Gutschein schenken Sie Zeit für Gesundheit und Wohlbefinden – ganzheitlich &amp; natürlich.</p>
+    </div>
+  </section>
+
+  <section class="section section--tight" aria-labelledby="order-title">
+    <div class="container voucher-grid">
+      <div class="voucher-stage reveal">
+        <div class="voucher" data-voucher aria-hidden="true">
+          <img class="voucher__logo" src="assets/img/logo-full.webp" alt="" width="1000" height="494">
+          <div class="voucher__title">Gutschein</div>
+          <div class="voucher__row">
+            <div class="voucher__for">für<b data-v-for>einen lieben Menschen</b></div>
+            <div class="voucher__value"><small data-v-kind>Wert</small><span data-v-value>50 €</span></div>
+          </div>
+        </div>
+        <p class="voucher-note">Vorschau – so ähnlich sieht Ihr Gutschein aus.</p>
+      </div>
+
+      <div class="form-card reveal" data-delay="1">
+        <h2 id="order-title" style="font-size:clamp(1.9rem,3.4vw,2.8rem);margin-bottom:8px">Gutschein <em>bestellen</em></h2>
+        <p style="color:var(--ink-soft);margin-bottom:28px">Stellen Sie Ihren Gutschein zusammen – ich melde mich mit einer Bestätigung und den Zahlungsinformationen bei Ihnen.</p>
+        <form id="gutschein-form" data-form="gutschein" data-title="Gutscheinbestellung" novalidate action="api/send.php" method="post">
+          <div class="fgroup">
+            <h4>1 · Art des Gutscheins</h4>
+            <div class="chips" role="radiogroup" aria-label="Art des Gutscheins">
+              <label class="chip"><input type="radio" name="Art" value="Wertgutschein" checked data-kind="value"><span>Wertgutschein</span></label>
+              <label class="chip"><input type="radio" name="Art" value="Behandlungsgutschein" data-kind="treatment"><span>Behandlungsgutschein</span></label>
+            </div>
+            <div class="fields" data-show="value">
+              <fieldset class="field field--full">
+                <legend>Betrag</legend>
+                <div class="chips">
+                  <label class="chip"><input type="radio" name="Betrag" value="25 €"><span>25 €</span></label>
+                  <label class="chip"><input type="radio" name="Betrag" value="50 €" checked><span>50 €</span></label>
+                  <label class="chip"><input type="radio" name="Betrag" value="75 €"><span>75 €</span></label>
+                  <label class="chip"><input type="radio" name="Betrag" value="100 €"><span>100 €</span></label>
+                  <label class="chip"><input type="radio" name="Betrag" value="150 €"><span>150 €</span></label>
+                  <label class="chip"><input type="radio" name="Betrag" value="Wunschbetrag"><span>Wunschbetrag</span></label>
+                </div>
+              </fieldset>
+              <div class="field" data-show="custom" hidden>
+                <label for="g-wunsch">Wunschbetrag in Euro *</label>
+                <input id="g-wunsch" name="Wunschbetrag" type="number" min="10" max="1000" step="5" inputmode="numeric" placeholder="z. B. 120">
+              </div>
+            </div>
+            <div class="fields" data-show="treatment" hidden>
+              <div class="field field--full">
+                <label for="g-behandlung">Behandlung *</label>
+                <select id="g-behandlung" name="Behandlung">
+                  <option value="IHHT-Höhentraining">IHHT-Höhentraining</option>
+                  <option value="Leberreinigung – 14 Tage persönlich begleitet">Leberreinigung – 14 Tage persönlich begleitet</option>
+                  <option value="Infusion">Infusion</option>
+                </select>
+                <small style="color:var(--ink-soft);font-size:.82rem">Den Preis teile ich Ihnen mit der Bestätigung mit.</small>
+              </div>
+            </div>
+          </div>
+
+          <div class="fgroup">
+            <h4>2 · Persönliche Note</h4>
+            <div class="fields">
+              <div class="field"><label for="g-fuer">Für (Name auf dem Gutschein)</label><input id="g-fuer" name="Beschenkte Person" maxlength="40" placeholder="z. B. Anna"></div>
+              <div class="field"><label for="g-von">Von</label><input id="g-von" name="Von" maxlength="40" placeholder="z. B. Deiner Familie"></div>
+              <div class="field field--full"><label for="g-widmung">Persönliche Widmung (optional)</label><textarea id="g-widmung" name="Widmung" maxlength="200" placeholder="Ein paar liebe Worte …" style="min-height:80px"></textarea></div>
+            </div>
+          </div>
+
+          <div class="fgroup">
+            <h4>3 · Zustellung</h4>
+            <div class="chips" role="radiogroup" aria-label="Zustellung">
+              <label class="chip"><input type="radio" name="Zustellung" value="Abholung in der Praxis" checked><span>Abholung in der Praxis</span></label>
+              <label class="chip"><input type="radio" name="Zustellung" value="Per Post" data-needs-address><span>Per Post</span></label>
+              <label class="chip"><input type="radio" name="Zustellung" value="Per E-Mail (PDF)"><span>Per E-Mail (PDF)</span></label>
+            </div>
+          </div>
+
+          <div class="fgroup">
+            <h4>4 · Ihre Kontaktdaten</h4>
+            <div class="fields">
+              <div class="field"><label for="g-name">Ihr Name *</label><input id="g-name" name="Name" autocomplete="name" required></div>
+              <div class="field"><label for="g-mail">E-Mail *</label><input id="g-mail" name="E-Mail" type="email" autocomplete="email" required></div>
+              <div class="field"><label for="g-tel">Telefon</label><input id="g-tel" name="Telefon" type="tel" autocomplete="tel"></div>
+              <div class="field" data-show="address" hidden><label for="g-adresse">Lieferadresse *</label><input id="g-adresse" name="Lieferadresse" autocomplete="street-address" placeholder="Straße, PLZ, Ort"></div>
+            </div>
+          </div>
+
+          <div class="fgroup">
+            <label class="consent"><input type="checkbox" name="Einwilligung" value="ja" required> <span>Ich bin einverstanden, dass meine Angaben zur Bearbeitung der Gutscheinbestellung verarbeitet werden. Details in der <a href="datenschutz.html">Datenschutzerklärung</a>. *</span></label>
+          </div>
+          <div class="hp" aria-hidden="true"><label>Bitte leer lassen <input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+          <div class="form-error" data-error role="alert" hidden></div>
+          <div class="form-nav">
+            <span style="font-size:.85rem;color:var(--ink-soft)">Zahlung per Überweisung oder bar in der Praxis.</span>
+            <button type="submit" class="btn" data-submit>Gutschein anfragen <span class="arrow" aria-hidden="true"><svg width="14" height="14"><use href="#i-gift"/></svg></span></button>
+          </div>
+          <div class="fstep form-success" data-step="done" role="status" hidden>
+            <div class="check"><svg width="38" height="38"><use href="#i-gift"/></svg></div>
+            <h3>Vielen Dank für Ihre Bestellung!</h3>
+            <p data-success-text>Ihre Gutscheinanfrage ist bei mir angekommen. Ich melde mich in Kürze mit einer Bestätigung und den Zahlungsinformationen.</p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--blush" aria-labelledby="how-title">
+    <div class="container">
+      <div class="section__head section__head--split">
+        <div>
+          <span class="eyebrow">So einfach geht’s</span>
+          <h2 id="how-title" class="reveal" style="margin-top:22px">In drei Schritten <em>zum Gutschein</em></h2>
+        </div>
+        <p class="reveal" data-delay="1">Gutscheine erhalten Sie auch jederzeit direkt in der Praxis. Rufen Sie gerne an: <a href="tel:+4972224079558" style="color:var(--mocha);font-weight:600">07222 407 95 58</a></p>
+      </div>
+      <ol class="how">
+        <li class="reveal"><h3>Gestalten</h3><p>Wählen Sie einen Wert- oder Behandlungsgutschein und ergänzen Sie auf Wunsch eine persönliche Widmung.</p></li>
+        <li class="reveal" data-delay="1"><h3>Bestätigung erhalten</h3><p>Nach Ihrer Anfrage erhalten Sie von mir eine Bestätigung mit den Zahlungsinformationen – per Überweisung oder bar in der Praxis.</p></li>
+        <li class="reveal" data-delay="2"><h3>Verschenken</h3><p>Nach Zahlungseingang erhalten Sie den Gutschein – zur Abholung in der Praxis, per Post oder als PDF per E-Mail.</p></li>
+      </ol>
+      <p class="reveal" style="margin-top:28px;font-size:.88rem;color:var(--ink-soft)">Gutscheine sind drei Jahre gültig und können nach Terminvereinbarung in der Praxis eingelöst werden. Eine Barauszahlung ist nicht möglich.</p>
+    </div>
+  </section>
